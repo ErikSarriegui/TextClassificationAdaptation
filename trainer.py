@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import torch
 
-class TrainLLM:
+class TextClassificationAdaptation:
     """
     Código de: https://jesusleal.io/2021/04/21/Longformer-multilabel-classification/
     """
@@ -68,7 +68,7 @@ class TrainLLM:
         batch_size : int = 8,
         metric_name : str = "f1",
         learning_rate : float = 2e-5,
-        num_train_epochs ; int = 5,
+        num_train_epochs : int = 5,
         weight_decay : float = 0.01
     ):
         """
