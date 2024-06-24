@@ -9,13 +9,13 @@ data = [
     ["Esto es otro texto de prueba", False, False, False]
 ]
 
-df = pd.DataFrame(data, columns=["post_text", "symptom0", "symptom1", "symptom2"])
+df = pd.DataFrame(data, columns=["text", "symptom0", "symptom1", "symptom2"])
 
 # Prepare data 2 dataset
 dataset = DatasetDict({"train" : Dataset.from_pandas(df)})
 
 # Labels
-labels = [label for label in dataset['train'].features.keys() if label not in ['post_text']]
+labels = [label for label in dataset['train'].features.keys() if label not in ['text']]
 id2label = {idx:label for idx, label in enumerate(labels)}
 label2id = {label:idx for idx, label in enumerate(labels)}
 
