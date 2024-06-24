@@ -1,15 +1,24 @@
 from transformers import TrainingArguments, Trainer, AutoTokenizer, AutoModelForSequenceClassification, EvalPrediction
 from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
 from datasets import Dataset, DatasetDict
+from typing import List, Dict
 import pandas as pd
 import numpy as np
 import torch
 
 class TrainLLM:
+    """
+    Código de: https://jesusleal.io/2021/04/21/Longformer-multilabel-classification/
+    """
     @staticmethod
-    def compute_multi_label_metrics(predictions, true_labels, threshold=0.5):
+    def compute_multi_label_metrics(
+        predictions : List,
+        true_labels : List,
+        threshold : int = 0.5
+    ) -> Dict:
         """
-        Calcula métricas para clasificación multi-etiqueta.
+        Calcula métricas para clasificación multi-etiqueta. Hay que tener cuidado porque habitualmente la función sigmoidal se utiliza
+        para tareas de clasificación binaria, pero, como en el tutorial está, no he querido cambiarlo.
 
         Parámetros:
         - predictions: array de predicciones del modelo.
@@ -28,14 +37,16 @@ class TrainLLM:
         roc_auc = roc_auc_score(y_true=true_labels, y_score=binary_predictions, average='micro')
         accuracy = accuracy_score(y_true=true_labels, y_pred=binary_predictions)
 
-        metrics = {
+        return {
             'f1': f1_micro_avg,
             'roc_auc': roc_auc,
             'accuracy': accuracy
         }
-        return metrics
 
-    def compute_metrics(self, evaluation_prediction: EvalPrediction):
+    def compute_metrics(
+        self,
+        evaluation_prediction: EvalPrediction
+    ) -> Dict:
         """
         Computa las métricas requeridas durante la evaluación del modelo.
 
@@ -50,15 +61,15 @@ class TrainLLM:
 
     def train(
         self,
-        model,
-        train_dataset,
-        eval_dataset,
-        tokenizer,
-        batch_size = 8,
-        metric_name = "f1",
-        learning_rate = 2e-5,
-        num_train_epochs = 5,
-        weight_decay = 0.01
+        model : AutoModelForSequenceClassification,
+        train_dataset : Dataset,
+        eval_dataset : Dataset,
+        tokenizer : AutoTokenizer,
+        batch_size : int = 8,
+        metric_name : str = "f1",
+        learning_rate : float = 2e-5,
+        num_train_epochs ; int = 5,
+        weight_decay : float = 0.01
     ):
         """
         Entrena el modelo utilizando los conjuntos de datos de entrenamiento y evaluación proporcionados.
@@ -75,25 +86,25 @@ class TrainLLM:
         - Modelo entrenado.
         """
         training_args = TrainingArguments(
-            output_dir="/finetuned_model",
-            evaluation_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=num_train_epochs,
-            weight_decay=weight_decay,
-            load_best_model_at_end=True,
-            metric_for_best_model=metric_name,
+            output_dir = "/finetuned_model",
+            evaluation_strategy = "epoch",
+            save_strategy = "epoch",
+            learning_rate = learning_rate,
+            per_device_train_batch_size = batch_size,
+            per_device_eval_batch_size = batch_size,
+            num_train_epochs = num_train_epochs,
+            weight_decay = weight_decay,
+            load_best_model_at_end = True,
+            metric_for_best_model = metric_name,
         )
 
         trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
-            tokenizer=tokenizer,
-            compute_metrics=self.compute_metrics
+            model = model,
+            args = training_args,
+            train_dataset = train_dataset,
+            eval_dataset = eval_dataset,
+            tokenizer = tokenizer,
+            compute_metrics = self.compute_metrics
         )
 
         trainer.train()

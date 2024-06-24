@@ -1,8 +1,14 @@
 from datasets import DatasetDict, Dataset
+from transformers import AutoTokenizer
+from typing import Any, List
 import pandas as pd
 import numpy as np
 
-def preprocessDataset(examples, classification_labels, tokenizer):
+def preprocessDataset(
+    examples : Any,
+    classification_labels : List,
+    tokenizer : AutoTokenizer
+) -> Any:
     """
     Esta función toma un conjunto de datos, lo tokeniza y añade las etiquetas de clasificación al
     apartado "labels" junto al texto tokenizado.
