@@ -15,7 +15,7 @@ def preprocessDataset(examples, classification_labels, tokenizer):
     Output:
     - encoding: diccionario con los datos tokenizados y las etiquetas de clasificación añadidas bajo la clave "labels".
     """
-    text_data = examples["post_text"]
+    text_data = examples["text"]
     encoding = tokenizer(text_data, padding="max_length", truncation=True, max_length=128)
 
     # Filtrar las etiquetas de clasificación del dataset
