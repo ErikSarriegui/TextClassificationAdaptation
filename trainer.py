@@ -19,14 +19,13 @@ class TrainLLM:
         Output:
         - Diccionario con métricas f1, roc_auc y accuracy.
         """
-        sigmoid = torch.nn.Sigmoid()
-        probabilities = sigmoid(torch.Tensor(predictions))
-        binary_predictions = np.zeros(probabilities.shape)
-        binary_predictions[np.where(probabilities >= threshold)] = 1
+        softmax = torch.nn.Softmax(dim=1)
+        probabilities = softmax(torch.Tensor(predictions))
+        predicted_classes = np.argmax(probabilities.numpy(), axis=1)
 
-        f1_micro_avg = f1_score(y_true=true_labels, y_pred=binary_predictions, average='micro')
-        roc_auc = roc_auc_score(y_true=true_labels, y_score=binary_predictions, average='micro')
-        accuracy = accuracy_score(y_true=true_labels, y_pred=binary_predictions)
+        f1_micro_avg = f1_score(y_true=true_labels, y_pred=predicted_classes, average='micro')
+        roc_auc = roc_auc_score(y_true=true_labels, y_score=probabilities.numpy(), multi_class='ovr', average='macro')
+        accuracy = accuracy_score(y_true=true_labels, y_pred=predicted_classes)
 
         metrics = {
             'f1': f1_micro_avg,
@@ -48,7 +47,18 @@ class TrainLLM:
         predictions = evaluation_prediction.predictions[0] if isinstance(evaluation_prediction.predictions, tuple) else evaluation_prediction.predictions
         return self.compute_multi_label_metrics(predictions=predictions, true_labels=evaluation_prediction.label_ids)
 
-    def train(self, model, train_dataset, eval_dataset, tokenizer, batch_size=8, metric_name="f1"):
+    def train(
+        self,
+        model,
+        train_dataset,
+        eval_dataset,
+        tokenizer,
+        batch_size = 8,
+        metric_name = "f1",
+        learning_rate = "2e-5",
+        num_train_epochs = 5,
+        weight_decay = 0.01
+    ):
         """
         Entrena el modelo utilizando los conjuntos de datos de entrenamiento y evaluación proporcionados.
 
@@ -67,11 +77,11 @@ class TrainLLM:
             output_dir="/finetuned_model",
             evaluation_strategy="epoch",
             save_strategy="epoch",
-            learning_rate=2e-5,
+            learning_rate=learning_rate,
             per_device_train_batch_size=batch_size,
             per_device_eval_batch_size=batch_size,
-            num_train_epochs=5,
-            weight_decay=0.01,
+            num_train_epochs=num_train_epochs,
+            weight_decay=weight_decay,
             load_best_model_at_end=True,
             metric_for_best_model=metric_name,
         )
