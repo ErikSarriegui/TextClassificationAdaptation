@@ -87,7 +87,7 @@ class TextClassificationAdaptation:
         """
         training_args = TrainingArguments(
             output_dir = "/finetuned_model",
-            evaluation_strategy = "epoch",
+            eval_strategy = "epoch",
             save_strategy = "epoch",
             learning_rate = learning_rate,
             per_device_train_batch_size = batch_size,
