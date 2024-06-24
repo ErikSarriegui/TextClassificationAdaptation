@@ -56,7 +56,7 @@ class TrainLLM:
         tokenizer,
         batch_size = 8,
         metric_name = "f1",
-        learning_rate = "2e-5",
+        learning_rate = 2e-5,
         num_train_epochs = 5,
         weight_decay = 0.01
     ):
