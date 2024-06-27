@@ -102,7 +102,7 @@ class TextClassificationAdaptation:
 
         if optimizer == None:
             optimizer = torch.optim.AdamW(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
-            lr_scheduler_LambdaLR = LambdaLR(optimizer, lr_scheduler)
+            lr_scheduler_LambdaLR = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_scheduler)
 
         trainer = Trainer(
             model = model,
