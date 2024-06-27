@@ -31,12 +31,14 @@ class TextClassificationAdaptation:
         Output:
         - Diccionario con métricas f1, roc_auc y accuracy.
         """
-        probabilities = torch.nn.functional.softmax(torch.tensor(predictions), dim=-1).numpy()
-        predicted_classes = np.argmax(probabilities, axis=1)
-    
-        f1 = f1_score(y_true=true_labels, y_pred=predicted_classes, average='micro')
-        accuracy = accuracy_score(y_true=true_labels, y_pred=predicted_classes)
-        roc_auc = roc_auc_score(y_true=true_labels, y_score=probabilities, multi_class='ovr')
+        sigmoid = torch.nn.Sigmoid()
+        probabilities = sigmoid(torch.Tensor(predictions))
+        binary_predictions = np.zeros(probabilities.shape)
+        binary_predictions[np.where(probabilities >= threshold)] = 1
+
+        f1_micro_avg = f1_score(y_true=true_labels, y_pred=binary_predictions, average='micro')
+        roc_auc = roc_auc_score(y_true=true_labels, y_score=binary_predictions, average='micro')
+        accuracy = accuracy_score(y_true=true_labels, y_pred=binary_predictions)
 
         result_dict = {
             'f1': f1_micro_avg,
