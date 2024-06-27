@@ -10,8 +10,11 @@ class TextClassificationAdaptation:
     """
     Código de: https://jesusleal.io/2021/04/21/Longformer-multilabel-classification/
     """
-    @staticmethod
+    def __init__(self) -> None:
+        self.results = []
+
     def compute_multi_label_metrics(
+        self,
         predictions : List,
         true_labels : List,
         threshold : int = 0.5
@@ -37,11 +40,13 @@ class TextClassificationAdaptation:
         roc_auc = roc_auc_score(y_true=true_labels, y_score=binary_predictions, average='micro')
         accuracy = accuracy_score(y_true=true_labels, y_pred=binary_predictions)
 
-        return {
+        result_dict = {
             'f1': f1_micro_avg,
             'roc_auc': roc_auc,
             'accuracy': accuracy
         }
+        self.results.append(result_dict)
+        return result_dict
 
     def compute_metrics(
         self,
@@ -123,4 +128,4 @@ class TextClassificationAdaptation:
         )
 
         trainer.train()
-        return model
+        return model, self.results
