@@ -97,12 +97,12 @@ class TextClassificationAdaptation:
 
         def lr_lambda(current_step: int):
             return max(0.0, float(1 - current_step / total_steps))
-        
-        if lr_scheduler is None:
-            lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
         if optimizer is None:
             optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            
+        if lr_scheduler is None:
+            lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
         training_args = TrainingArguments(
             output_dir="/finetuned_model",
