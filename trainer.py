@@ -69,7 +69,9 @@ class TextClassificationAdaptation:
         metric_name : str = "f1",
         learning_rate : float = 2e-5,
         num_train_epochs : int = 5,
-        weight_decay : float = 0.01
+        weight_decay : float = 0.01,
+        optimizer = None
+        lr_scheduler = None
     ):
         """
         Entrena el modelo utilizando los conjuntos de datos de entrenamiento y evaluación proporcionados.
@@ -98,13 +100,18 @@ class TextClassificationAdaptation:
             metric_for_best_model = metric_name,
         )
 
+        if optimizer == None:
+            optimizer = torch.optim.AdamW(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
+            lr_scheduler_LambdaLR = LambdaLR(optimizer, lr_scheduler)
+
         trainer = Trainer(
             model = model,
             args = training_args,
             train_dataset = train_dataset,
             eval_dataset = eval_dataset,
             tokenizer = tokenizer,
-            compute_metrics = self.compute_metrics
+            compute_metrics = self.compute_metrics,
+            optimizer = (optimizer, lr_scheduler_LambdaLR)
         )
 
         trainer.train()
