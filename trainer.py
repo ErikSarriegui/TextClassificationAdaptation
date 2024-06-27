@@ -61,15 +61,15 @@ class TextClassificationAdaptation:
 
     def train(
         self,
-        model : AutoModelForSequenceClassification,
-        train_dataset : Dataset,
-        eval_dataset : Dataset,
-        tokenizer : AutoTokenizer,
-        batch_size : int = 8,
-        metric_name : str = "f1",
-        learning_rate : float = 2e-5,
-        num_train_epochs : int = 5,
-        weight_decay : float = 0.01,
+        model: AutoModelForSequenceClassification,
+        train_dataset: Dataset,
+        eval_dataset: Dataset,
+        tokenizer: AutoTokenizer,
+        batch_size: int = 8,
+        metric_name: str = "f1",
+        learning_rate: float = 2e-5,
+        num_train_epochs: int = 5,
+        weight_decay: float = 0.01,
         optimizer = None,
         lr_scheduler = None
     ):
@@ -87,31 +87,36 @@ class TextClassificationAdaptation:
         Output:
         - Modelo entrenado.
         """
+        total_steps = len(train_dataset) // batch_size * num_train_epochs
+
+        def lr_lambda(current_step: int):
+            return max(0.0, float(1 - current_step / total_steps))
+
+        if optimizer is None:
+            optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
         training_args = TrainingArguments(
-            output_dir = "/finetuned_model",
-            eval_strategy = "epoch",
-            save_strategy = "epoch",
-            learning_rate = learning_rate,
-            per_device_train_batch_size = batch_size,
-            per_device_eval_batch_size = batch_size,
-            num_train_epochs = num_train_epochs,
-            weight_decay = weight_decay,
-            load_best_model_at_end = True,
-            metric_for_best_model = metric_name,
+            output_dir="/finetuned_model",
+            eval_strategy="epoch",
+            save_strategy="epoch",
+            learning_rate=learning_rate,
+            per_device_train_batch_size=batch_size,
+            per_device_eval_batch_size=batch_size,
+            num_train_epochs=num_train_epochs,
+            weight_decay=weight_decay,
+            load_best_model_at_end=True,
+            metric_for_best_model=metric_name,
         )
 
-        if optimizer == None:
-            optimizer = torch.optim.AdamW(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
-            lr_scheduler_LambdaLR = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_scheduler)
-
         trainer = Trainer(
-            model = model,
-            args = training_args,
-            train_dataset = train_dataset,
-            eval_dataset = eval_dataset,
-            tokenizer = tokenizer,
-            compute_metrics = self.compute_metrics,
-            optimizer = (optimizer, lr_scheduler_LambdaLR)
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer,
+            compute_metrics=self.compute_metrics,
+            optimizers=(optimizer, lr_scheduler)
         )
 
         trainer.train()
