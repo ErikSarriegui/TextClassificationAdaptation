@@ -70,7 +70,7 @@ class TextClassificationAdaptation:
         learning_rate : float = 2e-5,
         num_train_epochs : int = 5,
         weight_decay : float = 0.01,
-        optimizer = None
+        optimizer = None,
         lr_scheduler = None
     ):
         """
