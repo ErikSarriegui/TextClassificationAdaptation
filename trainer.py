@@ -130,7 +130,7 @@ class TextClassificationAdaptation:
         trainer.train()
 
         return model, {
-            "epoch" : range(1, len(self.results) + 1),
+            "epoch" : list(range(1, len(self.results) + 1)),
             "f1" : [element["f1"] for element in self.results],
             "roc_auc" : [element["roc_auc"] for element in self.results],
             "accuracy" : [element["accuracy"] for element in self.results],
