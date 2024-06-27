@@ -31,8 +31,8 @@ class TextClassificationAdaptation:
         Output:
         - Diccionario con métricas f1, roc_auc y accuracy.
         """
-        softmax = torch.nn.Softmax()
-        probabilities = softmax(torch.Tensor(predictions))
+        sigmoid = torch.nn.Sigmoid()
+        probabilities = sigmoid(torch.Tensor(predictions))
         binary_predictions = np.zeros(probabilities.shape)
         binary_predictions[np.where(probabilities >= threshold)] = 1
 
