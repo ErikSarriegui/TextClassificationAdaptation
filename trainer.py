@@ -71,7 +71,8 @@ class TextClassificationAdaptation:
         num_train_epochs: int = 5,
         weight_decay: float = 0.01,
         optimizer = None,
-        lr_scheduler = None
+        lr_scheduler = None,
+        eval_strategy = "epoch"
     ):
         """
         Entrena el modelo utilizando los conjuntos de datos de entrenamiento y evaluación proporcionados.
@@ -100,7 +101,7 @@ class TextClassificationAdaptation:
 
         training_args = TrainingArguments(
             output_dir="/finetuned_model",
-            eval_strategy="epoch",
+            eval_strategy=eval_strategy,
             save_strategy="epoch",
             learning_rate=learning_rate,
             per_device_train_batch_size=batch_size,
